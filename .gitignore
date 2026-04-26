@@ -216,3 +216,17 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# MLOps Project specific
+artifacts/data_ingestion/*.csv
+artifacts/data_transformation/*.pkl
+artifacts/model_trainer/*.pkl
+logs/
+mlruns/
+mlartifacts/
+feature_repo/data/*.parquet
+feature_repo/data/registry.db
+feature_repo/feature_store.yaml
+data-source/*.csv
+*.pkl
+*.parquet
