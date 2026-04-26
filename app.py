@@ -3,13 +3,13 @@ from src.pipelines.prediction_pipeline import PredictionPipeline, CustomClass
 
 app = Flask(__name__)
 
-
 @app.route("/predict", methods=["POST"])
 def predict():
     try:
+        # Get JSON data from request
         json_data = request.get_json()
 
-        # Map incoming JSON fields to our CustomClass
+        # Create CustomClass instance with JSON data
         data = CustomClass(
             age=int(json_data.get("age")),
             workclass=int(json_data.get("workclass")),
@@ -25,10 +25,12 @@ def predict():
             native_country=int(json_data.get("native_country"))
         )
 
+        # Get prediction
         final_data = data.get_data_DataFrame()
-        pipeline = PredictionPipeline()
-        pred = pipeline.predict(final_data)
+        pipeline_prediction = PredictionPipeline()
+        pred = pipeline_prediction.predict(final_data)
 
+        # Return prediction result
         return jsonify({
             "status": "success",
             "prediction": int(pred[0]),
@@ -40,7 +42,6 @@ def predict():
             "status": "error",
             "message": str(e)
         }), 400
-
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", debug=True)
