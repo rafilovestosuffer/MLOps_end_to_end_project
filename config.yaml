@@ -1,0 +1,47 @@
+data:
+  source_path: "data-source/income_cleandata.csv"
+  test_size: 0.20
+  random_state: 42
+
+artifacts:
+  data_ingestion: "artifacts/data_ingestion"
+  data_transformation: "artifacts/data_transformation"
+  model_trainer: "artifacts/model_trainer"
+
+features:
+  target_column: "income"
+  numerical_columns:
+    - age
+    - workclass
+    - education_num
+    - marital_status
+    - occupation
+    - relationship
+    - race
+    - sex
+    - capital_gain
+    - capital_loss
+    - hours_per_week
+    - native_country
+
+model:
+  mlflow_uri: "http://localhost:5000"
+  experiment_name: "Modular_Workflow_Prediction_Pipeline"
+  cv_folds: 5
+
+  random_forest:
+    n_estimators: [20, 50, 30]
+    max_depth: [10, 8, 5]
+    min_samples_split: [2, 5, 10]
+    class_weight: ["balanced"]
+
+  decision_tree:
+    criterion: ["gini", "entropy", "log_loss"]
+    max_depth: [3, 4, 5, 6]
+    min_samples_split: [2, 3, 4, 5]
+    class_weight: ["balanced"]
+
+  logistic_regression:
+    C: [0.001, 0.01, 0.1, 1, 10]
+    solver: ["liblinear", "saga"]
+    class_weight: ["balanced"]
