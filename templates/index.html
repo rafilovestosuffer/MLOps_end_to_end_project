@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IncomeIQ — ML Income Predictor | MLOps Pipeline</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+
+<!-- Ambient background orbs -->
+<div class="orb-1"></div>
+<div class="orb-2"></div>
+
+<!-- ═══════════════════ NAVBAR ═══════════════════ -->
+<nav class="navbar">
+  <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl flex items-center justify-center"
+           style="background: linear-gradient(135deg,#6366f1,#8b5cf6);">
+        <i class="fas fa-brain text-white text-sm"></i>
+      </div>
+      <div>
+        <span class="font-bold text-white text-lg leading-none">IncomeIQ</span>
+        <p class="text-xs" style="color:#64748b;">MLOps End-to-End Project</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-4">
+      <a href="https://github.com/rafilovestosuffer/MLOps_end_to_end_project"
+         target="_blank"
+         class="flex items-center gap-2 text-sm transition-colors"
+         style="color:#94a3b8;" onmouseover="this.style.color='#f1f5f9'" onmouseout="this.style.color='#94a3b8'">
+        <i class="fab fa-github text-xl"></i>
+        <span class="hidden sm:block">GitHub</span>
+      </a>
+      <a href="/health"
+         target="_blank"
+         class="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium transition-colors"
+         style="border:1px solid rgba(16,185,129,0.3);background:rgba(16,185,129,0.08);color:#34d399;">
+        <div class="w-1.5 h-1.5 rounded-full anim-dot" style="background:#34d399;"></div>
+        API Live
+      </a>
+    </div>
+  </div>
+</nav>
+
+<!-- ═══════════════════ HERO ═══════════════════ -->
+<section class="relative pt-28 pb-14 px-6 text-center" style="z-index:1;">
+  <div class="max-w-4xl mx-auto">
+
+    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-6"
+         style="background:rgba(99,102,241,0.1);border:1px solid rgba(99,102,241,0.2);color:#a5b4fc;">
+      <i class="fas fa-rocket text-xs"></i>
+      Production-Ready ML Pipeline
+    </div>
+
+    <h1 class="text-5xl sm:text-6xl font-extrabold text-white mb-4 leading-tight">
+      Income Prediction
+      <span class="gradient-text block">ML Model</span>
+    </h1>
+    <p class="text-lg max-w-2xl mx-auto mb-10 leading-relaxed" style="color:#94a3b8;">
+      Predict whether an individual earns <strong style="color:#a5b4fc;">above or below $50K/year</strong>
+      using a full MLOps pipeline with feature engineering, experiment tracking, and containerised deployment.
+    </p>
+
+    <!-- Tech stack badges -->
+    <div class="flex flex-wrap justify-center gap-2 mb-12">
+      <span class="tech-badge"><i class="fab fa-python" style="color:#3b82f6;"></i> Python 3.10</span>
+      <span class="tech-badge"><i class="fas fa-flask" style="color:#6366f1;"></i> Flask</span>
+      <span class="tech-badge"><i class="fas fa-brain" style="color:#8b5cf6;"></i> scikit-learn</span>
+      <span class="tech-badge"><i class="fas fa-chart-line" style="color:#06b6d4;"></i> MLflow</span>
+      <span class="tech-badge"><i class="fas fa-database" style="color:#10b981;"></i> Feast</span>
+      <span class="tech-badge"><i class="fab fa-docker" style="color:#2563eb;"></i> Docker</span>
+      <span class="tech-badge"><i class="fas fa-random" style="color:#f59e0b;"></i> GridSearchCV</span>
+    </div>
+
+    <!-- Stats row -->
+    <div class="grid grid-cols-3 gap-4 max-w-lg mx-auto">
+      <div class="glass-card p-4">
+        <div class="stat-num gradient-text">3</div>
+        <p class="text-xs mt-1" style="color:#64748b;">Models Compared</p>
+      </div>
+      <div class="glass-card p-4">
+        <div class="stat-num gradient-text">12</div>
+        <p class="text-xs mt-1" style="color:#64748b;">Input Features</p>
+      </div>
+      <div class="glass-card p-4">
+        <div class="stat-num gradient-text">5</div>
+        <p class="text-xs mt-1" style="color:#64748b;">CV Folds</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════ PREDICTOR ═══════════════════ -->
+<section class="relative px-6 pb-20" style="z-index:1;">
+  <div class="max-w-4xl mx-auto">
+
+    <!-- Demo profiles -->
+    <div class="mb-5">
+      <p class="text-sm font-medium mb-3" style="color:#64748b;">
+        <i class="fas fa-bolt mr-1" style="color:#6366f1;"></i>Quick Demo Profiles
+      </p>
+      <div class="flex flex-wrap gap-3" id="demo-btns">
+        <button class="demo-btn" onclick="loadDemo(0)">
+          💼 Corporate Executive <span class="text-xs ml-1 opacity-60">→ &gt;50K</span>
+        </button>
+        <button class="demo-btn" onclick="loadDemo(1)">
+          🏛️ Government Clerk <span class="text-xs ml-1 opacity-60">→ ≤50K</span>
+        </button>
+        <button class="demo-btn" onclick="loadDemo(2)">
+          🎓 Early Career <span class="text-xs ml-1 opacity-60">→ ≤50K</span>
+        </button>
+        <button class="demo-btn" onclick="clearForm()" style="color:#ef4444;border-color:rgba(239,68,68,0.2);">
+          <i class="fas fa-times mr-1"></i>Clear
+        </button>
+      </div>
+    </div>
+
+    <!-- Main prediction card -->
+    <div class="glass-card p-6 sm:p-8">
+      <h2 class="text-xl font-semibold text-white mb-6 flex items-center gap-2">
+        <i class="fas fa-user-circle" style="color:#6366f1;"></i>
+        Individual Profile
+      </h2>
+
+      <form id="predict-form">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+
+          <!-- Age -->
+          <div>
+            <label class="form-label">Age <span id="age-display" class="text-white font-semibold">—</span></label>
+            <input type="range" id="age" name="age" min="17" max="90" value="35"
+                   oninput="document.getElementById('age-display').textContent=this.value" />
+          </div>
+
+          <!-- Sex -->
+          <div>
+            <label class="form-label">Sex</label>
+            <select id="sex" name="sex" class="form-select">
+              <option value="0">Female</option>
+              <option value="1" selected>Male</option>
+            </select>
+          </div>
+
+          <!-- Education Level -->
+          <div>
+            <label class="form-label">Education Level</label>
+            <select id="education_num" name="education_num" class="form-select">
+              <option value="1">Preschool</option>
+              <option value="2">1st–4th Grade</option>
+              <option value="3">5th–6th Grade</option>
+              <option value="4">7th–8th Grade</option>
+              <option value="5">9th Grade</option>
+              <option value="6">10th Grade</option>
+              <option value="7">11th Grade</option>
+              <option value="8">12th Grade (No Diploma)</option>
+              <option value="9">High School Graduate</option>
+              <option value="10" selected>Some College</option>
+              <option value="11">Associate – Vocational</option>
+              <option value="12">Associate – Academic</option>
+              <option value="13">Bachelors</option>
+              <option value="14">Masters</option>
+              <option value="15">Professional School</option>
+              <option value="16">Doctorate</option>
+            </select>
+          </div>
+
+          <!-- Workclass -->
+          <div>
+            <label class="form-label">Work Class</label>
+            <select id="workclass" name="workclass" class="form-select">
+              <option value="0">Federal Government</option>
+              <option value="1">Local Government</option>
+              <option value="2">Never Worked</option>
+              <option value="3" selected>Private</option>
+              <option value="4">Self-Employed (Inc.)</option>
+              <option value="5">Self-Employed (Not Inc.)</option>
+              <option value="6">State Government</option>
+              <option value="7">Without Pay</option>
+            </select>
+          </div>
+
+          <!-- Marital Status -->
+          <div>
+            <label class="form-label">Marital Status</label>
+            <select id="marital_status" name="marital_status" class="form-select">
+              <option value="0">Divorced</option>
+              <option value="1">Married – AF Spouse</option>
+              <option value="2">Married – Civ. Spouse</option>
+              <option value="3">Married – Spouse Absent</option>
+              <option value="4" selected>Never Married</option>
+              <option value="5">Separated</option>
+              <option value="6">Widowed</option>
+            </select>
+          </div>
+
+          <!-- Occupation -->
+          <div>
+            <label class="form-label">Occupation</label>
+            <select id="occupation" name="occupation" class="form-select">
+              <option value="0">Administrative / Clerical</option>
+              <option value="1">Armed Forces</option>
+              <option value="2">Craft / Repair</option>
+              <option value="3">Executive / Managerial</option>
+              <option value="4">Farming / Fishing</option>
+              <option value="5">Handlers / Cleaners</option>
+              <option value="6">Machine Operator / Inspector</option>
+              <option value="7" selected>Other Service</option>
+              <option value="8">Private House Service</option>
+              <option value="9">Professional Specialty</option>
+              <option value="10">Protective Service</option>
+              <option value="11">Sales</option>
+              <option value="12">Tech Support</option>
+              <option value="13">Transport / Moving</option>
+            </select>
+          </div>
+
+          <!-- Relationship -->
+          <div>
+            <label class="form-label">Relationship</label>
+            <select id="relationship" name="relationship" class="form-select">
+              <option value="0">Husband</option>
+              <option value="1">Not in Family</option>
+              <option value="2">Other Relative</option>
+              <option value="3" selected>Own Child</option>
+              <option value="4">Unmarried</option>
+              <option value="5">Wife</option>
+            </select>
+          </div>
+
+          <!-- Race -->
+          <div>
+            <label class="form-label">Race</label>
+            <select id="race" name="race" class="form-select">
+              <option value="0">Amer. Indian / Eskimo</option>
+              <option value="1">Asian / Pacific Islander</option>
+              <option value="2">Black</option>
+              <option value="3">Other</option>
+              <option value="4" selected>White</option>
+            </select>
+          </div>
+
+          <!-- Capital Gain -->
+          <div>
+            <label class="form-label">Capital Gain ($)</label>
+            <input type="number" id="capital_gain" name="capital_gain"
+                   class="form-input" value="0" min="0" max="99999" placeholder="e.g. 5000" />
+          </div>
+
+          <!-- Capital Loss -->
+          <div>
+            <label class="form-label">Capital Loss ($)</label>
+            <input type="number" id="capital_loss" name="capital_loss"
+                   class="form-input" value="0" min="0" max="4356" placeholder="e.g. 0" />
+          </div>
+
+          <!-- Hours per week -->
+          <div>
+            <label class="form-label">Hours / Week <span id="hours-display" class="text-white font-semibold">40</span></label>
+            <input type="range" id="hours_per_week" name="hours_per_week" min="1" max="99" value="40"
+                   oninput="document.getElementById('hours-display').textContent=this.value" />
+          </div>
+
+          <!-- Native Country -->
+          <div>
+            <label class="form-label">Native Country</label>
+            <select id="native_country" name="native_country" class="form-select">
+              <option value="0">Cambodia</option>
+              <option value="1">Canada</option>
+              <option value="2">China</option>
+              <option value="3">Columbia</option>
+              <option value="4">Cuba</option>
+              <option value="5">Dominican Republic</option>
+              <option value="6">Ecuador</option>
+              <option value="7">El Salvador</option>
+              <option value="8">England</option>
+              <option value="9">France</option>
+              <option value="10">Germany</option>
+              <option value="11">Greece</option>
+              <option value="12">Guatemala</option>
+              <option value="13">Haiti</option>
+              <option value="14">Holand-Netherlands</option>
+              <option value="15">Honduras</option>
+              <option value="16">Hong Kong</option>
+              <option value="17">Hungary</option>
+              <option value="18">India</option>
+              <option value="19">Iran</option>
+              <option value="20">Ireland</option>
+              <option value="21">Italy</option>
+              <option value="22">Jamaica</option>
+              <option value="23">Japan</option>
+              <option value="24">Laos</option>
+              <option value="25">Mexico</option>
+              <option value="26">Nicaragua</option>
+              <option value="27">Outlying-US Territories</option>
+              <option value="28">Peru</option>
+              <option value="29">Philippines</option>
+              <option value="30">Poland</option>
+              <option value="31">Portugal</option>
+              <option value="32">Puerto Rico</option>
+              <option value="33">Scotland</option>
+              <option value="34">South Korea</option>
+              <option value="35">Taiwan</option>
+              <option value="36">Thailand</option>
+              <option value="37">Trinidad & Tobago</option>
+              <option value="38" selected>United States</option>
+              <option value="39">Vietnam</option>
+              <option value="40">Yugoslavia</option>
+            </select>
+          </div>
+
+        </div><!-- /grid -->
+
+        <!-- Predict button -->
+        <div class="mt-8">
+          <button type="submit" id="predict-btn" class="predict-btn">
+            <i class="fas fa-magic"></i>
+            Predict Income Category
+          </button>
+        </div>
+
+      </form>
+    </div><!-- /glass-card -->
+
+    <!-- ═══ RESULT CARD (hidden until prediction) ═══ -->
+    <div id="result-card" class="hidden mt-6 glass-card p-6 sm:p-8 anim-scalein" style="border-radius:20px;">
+
+      <!-- Header row -->
+      <div class="flex items-start justify-between mb-6">
+        <div>
+          <p class="text-sm font-medium mb-1" style="color:#64748b;">Prediction Result</p>
+          <div id="result-category" class="text-3xl font-extrabold text-white"></div>
+        </div>
+        <div id="result-icon" class="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl anim-float"></div>
+      </div>
+
+      <!-- Confidence -->
+      <div id="confidence-section" class="mb-6 hidden">
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-sm" style="color:#94a3b8;">Model Confidence</span>
+          <span id="confidence-val" class="font-semibold text-white text-sm"></span>
+        </div>
+        <div class="confidence-track">
+          <div id="confidence-fill" class="confidence-fill"></div>
+        </div>
+      </div>
+
+      <!-- Summary grid -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4" id="result-summary"></div>
+
+      <!-- Divider + message -->
+      <div id="result-msg" class="mt-5 p-4 rounded-xl text-sm leading-relaxed"
+           style="background:rgba(255,255,255,0.03);color:#94a3b8;"></div>
+
+    </div><!-- /result-card -->
+
+  </div>
+</section>
+
+<!-- ═══════════════════ MLOPS PIPELINE ═══════════════════ -->
+<section class="relative px-6 py-20" style="z-index:1;background:rgba(255,255,255,0.015);border-top:1px solid rgba(255,255,255,0.06);border-bottom:1px solid rgba(255,255,255,0.06);">
+  <div class="max-w-5xl mx-auto">
+    <div class="text-center mb-12">
+      <h2 class="text-3xl font-bold text-white mb-3">MLOps Pipeline</h2>
+      <p style="color:#64748b;">End-to-end automated ML workflow from raw data to deployed predictions</p>
+    </div>
+
+    <div class="pipeline-wrap">
+      <div class="pipeline-step">
+        <div class="pipeline-icon"><i class="fas fa-database"></i></div>
+        <p class="text-xs font-semibold text-white text-center">Data Ingestion</p>
+        <p class="text-xs text-center" style="color:#64748b;">CSV → 80/20 split</p>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-icon"><i class="fas fa-sliders-h"></i></div>
+        <p class="text-xs font-semibold text-white text-center">Feature Engineering</p>
+        <p class="text-xs text-center" style="color:#64748b;">Impute + Scale + Feast</p>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-icon"><i class="fas fa-dumbbell"></i></div>
+        <p class="text-xs font-semibold text-white text-center">Model Training</p>
+        <p class="text-xs text-center" style="color:#64748b;">GridSearchCV × 3 models</p>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-icon"><i class="fas fa-chart-bar"></i></div>
+        <p class="text-xs font-semibold text-white text-center">Experiment Tracking</p>
+        <p class="text-xs text-center" style="color:#64748b;">MLflow + metrics</p>
+      </div>
+      <div class="pipeline-step">
+        <div class="pipeline-icon"><i class="fas fa-rocket"></i></div>
+        <p class="text-xs font-semibold text-white text-center">Deployment</p>
+        <p class="text-xs text-center" style="color:#64748b;">Flask + Docker</p>
+      </div>
+    </div>
+
+    <!-- Models compared -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-14">
+      <div class="glass-card p-5 text-center">
+        <div class="text-2xl mb-2">🌲</div>
+        <p class="font-semibold text-white text-sm">Random Forest</p>
+        <p class="text-xs mt-1" style="color:#64748b;">Ensemble of decision trees with bagging</p>
+      </div>
+      <div class="glass-card p-5 text-center" style="border-color:rgba(99,102,241,0.3);background:rgba(99,102,241,0.05);">
+        <div class="text-2xl mb-2">🏆</div>
+        <p class="font-semibold text-white text-sm">Decision Tree</p>
+        <p class="text-xs mt-1" style="color:#64748b;">Gini / Entropy criterion tuning</p>
+        <span class="inline-block mt-2 px-2 py-0.5 text-xs rounded-full" style="background:rgba(99,102,241,0.2);color:#a5b4fc;">Best Selected</span>
+      </div>
+      <div class="glass-card p-5 text-center">
+        <div class="text-2xl mb-2">📈</div>
+        <p class="font-semibold text-white text-sm">Logistic Regression</p>
+        <p class="text-xs mt-1" style="color:#64748b;">Liblinear / Saga solvers</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════ API DOCS ═══════════════════ -->
+<section class="relative px-6 py-20" style="z-index:1;">
+  <div class="max-w-3xl mx-auto">
+    <div class="text-center mb-10">
+      <h2 class="text-3xl font-bold text-white mb-3">REST API</h2>
+      <p style="color:#64748b;">Use the prediction engine programmatically</p>
+    </div>
+
+    <div class="glass-card p-6">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="px-2 py-1 rounded-md text-xs font-bold" style="background:rgba(16,185,129,0.2);color:#34d399;">POST</span>
+        <code class="text-sm" style="color:#a5b4fc;">/predict</code>
+      </div>
+      <pre class="text-sm overflow-x-auto" style="color:#94a3b8;line-height:1.8;">{
+  "age": 45,
+  "workclass": 3,
+  "education_num": 14,
+  "marital_status": 2,
+  "occupation": 3,
+  "relationship": 0,
+  "race": 4,
+  "sex": 1,
+  "capital_gain": 15024,
+  "capital_loss": 0,
+  "hours_per_week": 50,
+  "native_country": 38
+}</pre>
+      <div class="mt-4 p-3 rounded-lg" style="background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);">
+        <p class="text-xs font-mono" style="color:#34d399;">→ { "status": "success", "prediction": 1, "income_category": "&gt;50K", "confidence": 87.4 }</p>
+      </div>
+    </div>
+
+    <div class="flex gap-4 mt-4">
+      <div class="glass-card p-5 flex-1">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="px-2 py-0.5 rounded text-xs font-bold" style="background:rgba(99,102,241,0.2);color:#a5b4fc;">GET</span>
+          <code class="text-xs" style="color:#a5b4fc;">/health</code>
+        </div>
+        <p class="text-xs" style="color:#64748b;">API health check endpoint</p>
+      </div>
+      <div class="glass-card p-5 flex-1">
+        <div class="flex items-center gap-2 mb-1">
+          <span class="px-2 py-0.5 rounded text-xs font-bold" style="background:rgba(99,102,241,0.2);color:#a5b4fc;">GET</span>
+          <code class="text-xs" style="color:#a5b4fc;">/</code>
+        </div>
+        <p class="text-xs" style="color:#64748b;">Interactive UI (this page)</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ═══════════════════ FOOTER ═══════════════════ -->
+<footer class="relative px-6 py-10 text-center" style="z-index:1;border-top:1px solid rgba(255,255,255,0.06);">
+  <p class="text-sm" style="color:#64748b;">
+    Built by
+    <a href="https://github.com/rafilovestosuffer" target="_blank"
+       class="font-medium transition-colors" style="color:#a5b4fc;"
+       onmouseover="this.style.color='#6366f1'" onmouseout="this.style.color='#a5b4fc'">
+      Rafi
+    </a>
+    · MLOps End-to-End Project
+    · <a href="https://github.com/rafilovestosuffer/MLOps_end_to_end_project" target="_blank"
+          class="transition-colors" style="color:#64748b;"
+          onmouseover="this.style.color='#a5b4fc'" onmouseout="this.style.color='#64748b'">
+        <i class="fab fa-github mr-1"></i>Source Code
+      </a>
+  </p>
+</footer>
+
+<!-- ═══════════════════ JAVASCRIPT ═══════════════════ -->
+<script>
+// ── Demo profiles (integer-encoded values) ──────────────────────────────────
+const DEMOS = [
+  {
+    label: "Corporate Executive",
+    age: 45, workclass: 3, education_num: 14, marital_status: 2,
+    occupation: 3, relationship: 0, race: 4, sex: 1,
+    capital_gain: 15024, capital_loss: 0, hours_per_week: 50, native_country: 38
+  },
+  {
+    label: "Government Clerk",
+    age: 39, workclass: 6, education_num: 13, marital_status: 4,
+    occupation: 0, relationship: 1, race: 4, sex: 1,
+    capital_gain: 2174, capital_loss: 0, hours_per_week: 40, native_country: 38
+  },
+  {
+    label: "Early Career",
+    age: 24, workclass: 3, education_num: 10, marital_status: 4,
+    occupation: 7, relationship: 3, race: 4, sex: 0,
+    capital_gain: 0, capital_loss: 0, hours_per_week: 30, native_country: 38
+  }
+];
+
+// ── Load demo profile into form ─────────────────────────────────────────────
+function loadDemo(idx) {
+  const d = DEMOS[idx];
+  setField('age',           d.age);
+  setField('workclass',     d.workclass);
+  setField('education_num', d.education_num);
+  setField('marital_status',d.marital_status);
+  setField('occupation',    d.occupation);
+  setField('relationship',  d.relationship);
+  setField('race',          d.race);
+  setField('sex',           d.sex);
+  setField('capital_gain',  d.capital_gain);
+  setField('capital_loss',  d.capital_loss);
+  setField('hours_per_week',d.hours_per_week);
+  setField('native_country',d.native_country);
+
+  // Update range labels
+  document.getElementById('age-display').textContent    = d.age;
+  document.getElementById('hours-display').textContent  = d.hours_per_week;
+
+  // Highlight active demo button
+  document.querySelectorAll('.demo-btn').forEach((b, i) => {
+    b.classList.toggle('active', i === idx);
+  });
+}
+
+function setField(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.value = val;
+}
+
+function clearForm() {
+  document.getElementById('predict-form').reset();
+  document.getElementById('age-display').textContent   = '—';
+  document.getElementById('hours-display').textContent = '40';
+  document.querySelectorAll('.demo-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('result-card').classList.add('hidden');
+}
+
+// ── Build payload from form ─────────────────────────────────────────────────
+function buildPayload() {
+  const get = id => parseInt(document.getElementById(id).value, 10);
+  return {
+    age:           get('age'),
+    workclass:     get('workclass'),
+    education_num: get('education_num'),
+    marital_status:get('marital_status'),
+    occupation:    get('occupation'),
+    relationship:  get('relationship'),
+    race:          get('race'),
+    sex:           get('sex'),
+    capital_gain:  get('capital_gain'),
+    capital_loss:  get('capital_loss'),
+    hours_per_week:get('hours_per_week'),
+    native_country:get('native_country')
+  };
+}
+
+// ── Summary labels (human-readable) ────────────────────────────────────────
+const WORKCLASS_LABELS = ['Federal Gov','Local Gov','Never Worked','Private',
+  'Self-Emp Inc','Self-Emp','State Gov','Without Pay'];
+const EDUCATION_LABELS = ['','Preschool','1st-4th','5th-6th','7th-8th','9th','10th',
+  '11th','12th','HS Grad','Some College','Assoc-Voc','Assoc-Acdm','Bachelors','Masters','Prof-School','Doctorate'];
+const MARITAL_LABELS   = ['Divorced','Married-AF','Married','Married-Absent','Never Married','Separated','Widowed'];
+const OCC_LABELS       = ['Admin/Clerical','Armed Forces','Craft/Repair','Exec/Mgmt',
+  'Farming/Fishing','Handlers','Machine-Op','Other Service','Priv-House','Prof Specialty',
+  'Protective Svc','Sales','Tech Support','Transport'];
+const REL_LABELS       = ['Husband','Not-in-Family','Other Relative','Own Child','Unmarried','Wife'];
+const COUNTRY_LABELS   = ['Cambodia','Canada','China','Columbia','Cuba','Dominican Rep.','Ecuador',
+  'El Salvador','England','France','Germany','Greece','Guatemala','Haiti','Holand','Honduras',
+  'Hong Kong','Hungary','India','Iran','Ireland','Italy','Jamaica','Japan','Laos','Mexico',
+  'Nicaragua','Outlying-US','Peru','Philippines','Poland','Portugal','Puerto Rico','Scotland',
+  'South Korea','Taiwan','Thailand','Trinidad','United States','Vietnam','Yugoslavia'];
+
+// ── Render result card ─────────────────────────────────────────────────────
+function showResult(data, payload) {
+  const card        = document.getElementById('result-card');
+  const catEl       = document.getElementById('result-category');
+  const iconEl      = document.getElementById('result-icon');
+  const msgEl       = document.getElementById('result-msg');
+  const summaryEl   = document.getElementById('result-summary');
+  const confSection = document.getElementById('confidence-section');
+  const confVal     = document.getElementById('confidence-val');
+  const confFill    = document.getElementById('confidence-fill');
+
+  const isHigh = data.prediction === 1;
+
+  // Style card
+  card.classList.remove('hidden','result-high','result-low');
+  card.classList.add(isHigh ? 'result-high' : 'result-low', 'anim-scalein');
+
+  // Category text + icon
+  catEl.textContent  = isHigh ? '> $50K / year' : '≤ $50K / year';
+  catEl.style.color  = isHigh ? '#34d399' : '#fbbf24';
+  iconEl.textContent = isHigh ? '💰' : '📊';
+  iconEl.style.background = isHigh
+    ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)';
+
+  // Confidence
+  if (data.confidence !== null && data.confidence !== undefined) {
+    confSection.classList.remove('hidden');
+    const pct = Math.round(data.confidence);
+    confVal.textContent = pct + '%';
+    confFill.style.background = isHigh
+      ? 'linear-gradient(to right,#10b981,#06b6d4)'
+      : 'linear-gradient(to right,#f59e0b,#ef4444)';
+    setTimeout(() => { confFill.style.width = pct + '%'; }, 100);
+  } else {
+    confSection.classList.add('hidden');
+  }
+
+  // Summary tiles
+  const tiles = [
+    { label: 'Age',       value: payload.age + ' yrs' },
+    { label: 'Education', value: EDUCATION_LABELS[payload.education_num] || payload.education_num },
+    { label: 'Occupation',value: OCC_LABELS[payload.occupation] || payload.occupation },
+    { label: 'Hrs/Week',  value: payload.hours_per_week + ' h' }
+  ];
+  summaryEl.innerHTML = tiles.map(t => `
+    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:12px;">
+      <p style="font-size:11px;color:#64748b;margin-bottom:4px;">${t.label}</p>
+      <p style="font-size:14px;font-weight:600;color:#f1f5f9;">${t.value}</p>
+    </div>`).join('');
+
+  // Message
+  msgEl.innerHTML = isHigh
+    ? '<i class="fas fa-check-circle mr-2" style="color:#34d399;"></i>Based on the provided profile, the model predicts an annual income <strong style="color:#34d399;">above $50,000</strong>. Factors such as higher education, senior occupation, and longer work hours contribute to this outcome.'
+    : '<i class="fas fa-info-circle mr-2" style="color:#fbbf24;"></i>Based on the provided profile, the model predicts an annual income <strong style="color:#fbbf24;">at or below $50,000</strong>. Adjusting education level, occupation, or hours worked may shift this prediction.';
+
+  // Scroll to result
+  card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// ── Form submit handler ────────────────────────────────────────────────────
+document.getElementById('predict-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const btn = document.getElementById('predict-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div> Predicting…';
+
+  const payload = buildPayload();
+
+  try {
+    const res = await fetch('/predict', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json();
+
+    if (data.status === 'success') {
+      showResult(data, payload);
+    } else {
+      showError(data.message || 'Prediction failed. Make sure the model is trained.');
+    }
+  } catch (err) {
+    showError('Cannot reach the API. Is the Flask server running?');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-magic"></i> Predict Income Category';
+  }
+});
+
+function showError(msg) {
+  const card = document.getElementById('result-card');
+  card.classList.remove('hidden','result-high','result-low','anim-scalein');
+  card.className = 'glass-card p-6 sm:p-8 mt-6 anim-scalein';
+  card.style.border = '1px solid rgba(239,68,68,0.3)';
+  card.style.background = 'rgba(239,68,68,0.08)';
+  card.innerHTML = `
+    <div class="flex items-start gap-3">
+      <i class="fas fa-exclamation-triangle text-red-400 mt-0.5 text-xl"></i>
+      <div>
+        <p class="font-semibold text-white mb-1">Prediction Error</p>
+        <p class="text-sm" style="color:#94a3b8;">${msg}</p>
+        <p class="text-xs mt-2" style="color:#64748b;">Run <code style="color:#a5b4fc;">python main.py</code> first to train the model.</p>
+      </div>
+    </div>`;
+  card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// ── Init age slider display ────────────────────────────────────────────────
+document.getElementById('age-display').textContent = document.getElementById('age').value;
+</script>
+
+</body>
+</html>
