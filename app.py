@@ -1,15 +1,29 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 from src.pipelines.prediction_pipeline import PredictionPipeline, CustomClass
 
 app = Flask(__name__)
 
+
+@app.route("/", methods=["GET"])
+def home():
+    return render_template("index.html")
+
+
+@app.route("/health", methods=["GET"])
+def health():
+    return jsonify({
+        "status": "healthy",
+        "service": "IncomeIQ ML API",
+        "version": "1.0.0",
+        "model": "Income Predictor (Random Forest / Decision Tree / Logistic Regression)"
+    })
+
+
 @app.route("/predict", methods=["POST"])
 def predict():
     try:
-        # Get JSON data from request
         json_data = request.get_json()
 
-        # Create CustomClass instance with JSON data
         data = CustomClass(
             age=int(json_data.get("age")),
             workclass=int(json_data.get("workclass")),
@@ -25,23 +39,20 @@ def predict():
             native_country=int(json_data.get("native_country"))
         )
 
-        # Get prediction
         final_data = data.get_data_DataFrame()
-        pipeline_prediction = PredictionPipeline()
-        pred = pipeline_prediction.predict(final_data)
+        pipeline = PredictionPipeline()
+        pred, confidence = pipeline.predict(final_data)
 
-        # Return prediction result
         return jsonify({
             "status": "success",
             "prediction": int(pred[0]),
-            "income_category": "<=50K" if pred[0] == 0 else ">50K"
+            "income_category": "<=50K" if pred[0] == 0 else ">50K",
+            "confidence": round(confidence, 2) if confidence is not None else None
         })
 
     except Exception as e:
-        return jsonify({
-            "status": "error",
-            "message": str(e)
-        }), 400
+        return jsonify({"status": "error", "message": str(e)}), 400
+
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
