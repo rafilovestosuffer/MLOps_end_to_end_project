@@ -16,6 +16,15 @@
 <div class="orb-1"></div>
 <div class="orb-2"></div>
 
+<!-- Demo mode banner (shown by JS when demo_mode:true) -->
+<div id="demo-banner" class="hidden" style="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:200;white-space:nowrap;">
+  <div class="flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium shadow-xl"
+       style="background:rgba(245,158,11,0.15);border:1px solid rgba(245,158,11,0.4);color:#fbbf24;backdrop-filter:blur(12px);">
+    <i class="fas fa-flask"></i>
+    Demo Mode — heuristic predictions (run <code style="font-size:11px;">python main.py</code> to train the real model)
+  </div>
+</div>
+
 <!-- ═══════════════════ NAVBAR ═══════════════════ -->
 <nav class="navbar">
   <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -669,6 +678,9 @@ document.getElementById('predict-form').addEventListener('submit', async (e) => 
 
     if (data.status === 'success') {
       showResult(data, payload);
+      if (data.demo_mode) {
+        document.getElementById('demo-banner').classList.remove('hidden');
+      }
     } else {
       showError(data.message || 'Prediction failed. Make sure the model is trained.');
     }
