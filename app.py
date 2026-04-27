@@ -1,6 +1,6 @@
 import os
+import sys
 from flask import Flask, request, jsonify, render_template
-from src.pipelines.prediction_pipeline import PredictionPipeline, CustomClass
 
 app = Flask(__name__)
 
@@ -62,6 +62,7 @@ def predict():
 
         demo_mode = False
         if ARTIFACTS_EXIST:
+            from src.pipelines.prediction_pipeline import PredictionPipeline, CustomClass
             data = CustomClass(**payload)
             df = data.get_data_DataFrame()
             pipeline = PredictionPipeline()
